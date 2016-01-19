@@ -8,7 +8,7 @@ var page = 'https://www.ptt.cc/bbs/' + boardToCrawl + '/index.html';
 
 var START_URL = page;
 var SEARCH_WORD = 'iphone';
-var MAX_PAGES_TO_VISIT = 50;
+var MAX_PAGES_TO_VISIT = 5;
 
 var pagesVisited = {};
 var numPagesVisited = 0;
@@ -53,9 +53,10 @@ function visitPage(url, callback) {
      var item = $("body").html();
 
      $('a').each(function(i, elem){
-     	console.log($(this).text());
 		if($(this).text().toLowerCase().indexOf('iphone') !== -1){
-			console.log('contains iphone!');
+	     	console.log($(this).text());
+			//console.log('contains iphone!');
+			console.log(baseUrl + $(this).attr('href'));
 		}     	
      });
 
