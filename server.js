@@ -8,21 +8,58 @@ var page = 'https://www.ptt.cc/bbs/' + boardToCrawl + '/index.html';
 
 var START_URL = page;
 var SEARCH_WORD = 'iphone';
-var MAX_PAGES_TO_VISIT = 5;
+var MAX_PAGES_TO_VISIT = 15;
 
 var pagesVisited = {};
 var numPagesVisited = 0;
 var pagesToVisit = [];
 var url = new URL(START_URL);
 var baseUrl = url.protocol + "//" + url.hostname;
+var id = 0;
+var datas = [];
+
+// -------------------------------
+var path = require('path');
+var express = require('express');
+var http = require('http');
+var webpack = require('webpack');
+var config = require('./webpack.config');
+
+var app = express();
+var compiler = webpack(config);
+var io = require('socket.io')
+      .listen(app.listen(3000, function(){
+        console.log('HTTP on http://localhost:3000/');
+      }));
+
+app.use(require('webpack-dev-middleware')(compiler, {
+  publicPath: config.output.publicPath,
+  stats: {
+    colors: true
+  }
+}));
+
+app.use(require('webpack-hot-middleware')(compiler));
+
+app.get('*', function(req, res) {
+  res.sendFile(path.join(__dirname, 'index.html'));
+});
+
+//-------------------------------
 
 
 pagesToVisit.push(START_URL);
-crawl();
+io.sockets.on('connection', function (socket) {
+  console.log("socket!");
+  crawl();
+}); 
+
+
 
 function crawl() {
   if(numPagesVisited >= MAX_PAGES_TO_VISIT) {
     console.log("Reached max limit of number of pages to visit.");
+    io.sockets.emit('items', datas);
     return;
   }
   var nextPage = pagesToVisit.pop();
@@ -55,13 +92,15 @@ function visitPage(url, callback) {
      var item = $("body").html();
 
      $('a').each(function(i, elem){
-		if($(this).text().toLowerCase().indexOf('iphone') !== -1){
-
-	     	//console.log($(this).text());
-			//console.log('contains iphone!');
-			//console.log(baseUrl + $(this).attr('href'));
-
-		}     	
+  		if($(this).text().toLowerCase().indexOf('iphone') !== -1){
+  	    //console.log($(this).text());
+  			//console.log('contains iphone!');
+  			//console.log(baseUrl + $(this).attr('href'));
+        var title = $(this).text();
+        var url = baseUrl + $(this).attr('href');
+        datas.push({id: id,title: title, url: url});
+        ++id;
+  		}     	
      });
 
      var isWordFound = searchForWord($, SEARCH_WORD);
@@ -97,41 +136,12 @@ function collectInternalLinks($) {
 }
 
 
+
+
+
+
+
 // ------------------------------------
-
-
-var path = require('path');
-var express = require('express');
-var webpack = require('webpack');
-var config = require('./webpack.config');
-
-var app = express();
-var compiler = webpack(config);
-
-app.use(require('webpack-dev-middleware')(compiler, {
-  publicPath: config.output.publicPath,
-  stats: {
-    colors: true
-  }
-}));
-
-app.use(require('webpack-hot-middleware')(compiler));
-
-app.get('*', function(req, res) {
-  res.sendFile(path.join(__dirname, 'index.html'));
-});
-
-app.listen(3000, 'localhost', function(err) {
-  if (err) {
-    console.log(err);
-    return;
-  }
-
-  console.log('Listening at http://localhost:3000');
-});
-
-
-
 
 /*
 request(page, function (error, response, html) {
