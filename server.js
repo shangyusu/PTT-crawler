@@ -48,8 +48,9 @@ app.get('*', function(req, res) {
 //-------------------------------
 
 
-pagesToVisit.push(START_URL);
+
 io.sockets.on('connection', function (socket) {
+  pagesToVisit.push(START_URL);
   console.log("socket!");
   crawl();
 }); 
@@ -82,7 +83,8 @@ function visitPage(url, callback) {
   //console.log("Visiting page " + url);
   request(url, function(error, response, body) {
      // Check status code (200 is HTTP OK)
-     //console.log("Status code: " + response.statusCode);
+     // console.log("Status code: " + response.statusCode);
+     console.log("crawling: ", url);
      if(response.statusCode !== 200) {
        callback();
        return;
