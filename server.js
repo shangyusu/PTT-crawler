@@ -18,7 +18,6 @@ var baseUrl = url.protocol + "//" + url.hostname;
 var id = 0;
 var datas = [];
 
-// -------------------------------
 var path = require('path');
 var express = require('express');
 var http = require('http');
@@ -45,10 +44,7 @@ app.get('*', function(req, res) {
   res.sendFile(path.join(__dirname, 'index.html'));
 });
 
-//-------------------------------
-
-
-
+// sockets
 io.sockets.on('connection', function (socket) {
   pagesToVisit.push(START_URL);
   console.log("socket!");
@@ -95,9 +91,6 @@ function visitPage(url, callback) {
 
      $('a').each(function(i, elem){
   		if($(this).text().toLowerCase().indexOf('iphone') !== -1){
-  	    //console.log($(this).text());
-  			//console.log('contains iphone!');
-  			//console.log(baseUrl + $(this).attr('href'));
         var title = $(this).text();
         var url = baseUrl + $(this).attr('href');
         datas.push({id: id,title: title, url: url});
@@ -136,68 +129,3 @@ function collectInternalLinks($) {
     	}
     });
 }
-
-
-
-
-
-
-
-// ------------------------------------
-
-/*
-request(page, function (error, response, html) {
-    if (!error && response.statusCode == 200) {
-    var $ = cheerio.load(html);
-        var item = $("body").html();
-        //Do whatever you want with the result
-        var bodyText = $('html > body').text();
-        console.log(item);
-    	console.log(bodyText);
-    	console.log('------------------------------------');
-    	if(searchForWord($, 'iphone')){
-    		console.log('yes, there is.');
-    	}
-    	collectInternalLinks($);
-    }
-});
-
-function searchForWord($, word) {
-	var bodyText = $('html > body').text();
-	bodyText = bodyText.replace(/\s+/g, ' ');//.split(' ');
-	console.log(bodyText);
-	console.log('type: ', typeof(bodyText));
-	console.log('length: ', bodyText.length);
-	bodyText = bodyText.split(' ');
-	console.log('type: ', typeof(bodyText));
-	console.log('length: ', bodyText.length);
-	for(var i = 0; i < bodyText.length; ++i){
-		console.log('>', bodyText[i], '>', bodyText[i].length, '>', typeof(bodyText[i]));
-
-	}
-
-
-	//if(bodyText.toLowerCase().indexOf(word.toLowerCase()) !== -1) {
-		return true;
-	//}
-	//return false;
-}
-
-function collectInternalLinks($) {
-	var allRelativeLinks = [];
-	var allAbsoluteLinks = [];
-
-	var relativeLinks = $("a[href^='/']");
-		relativeLinks.each(function() {
-		allRelativeLinks.push($(this).attr('href'));
-	});
-
-	var absoluteLinks = $("a[href^='http']");
-	absoluteLinks.each(function() {
-		allAbsoluteLinks.push($(this).attr('href'));
-	});	
-
-	console.log("Found " + allRelativeLinks.length + " relative links");
-	console.log("Found " + allAbsoluteLinks.length + " absolute links");
-}
-*/
